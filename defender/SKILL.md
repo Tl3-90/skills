@@ -20,6 +20,7 @@ You are helping the user work with Microsoft's Defender security platform. Three
 | Defender for Endpoint | MDE | EDR, AV, ASR, device onboarding, Live Response, network/web protection |
 | Defender Vulnerability Management | DVM | CVE prioritization, software inventory, remediation ticketing |
 | Defender XDR | XDR | Unified SIEM/XDR, Advanced Hunting (KQL), incident IR, attack disruption |
+| Security Exposure Management | MSEM | Attack paths, blast radius, critical assets, exposure graph, initiatives |
 
 ## How to help
 
@@ -28,6 +29,7 @@ You are helping the user work with Microsoft's Defender security platform. Three
    - MDE config, ASR, Live Response, onboarding → `references/mde.md`
    - CVEs, EPSS, remediation workflow → `references/dvm.md`
    - Advanced Hunting, KQL, incident IR, custom detections → `references/xdr.md`
+   - Attack paths, exposure graph, critical assets, initiatives, blast radius → `references/exposure-management.md`
 3. **Fetch live docs** from GitHub when the user needs detail beyond what's in the reference files:
    ```powershell
    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
