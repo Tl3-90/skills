@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scaffold a plugin directory and optionally update marketplace.json."""
+"""Scaffold a repository-managed plugin and optionally update marketplace.json."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from typing import Any
 
 
 MAX_PLUGIN_NAME_LENGTH = 64
-DEFAULT_PLUGIN_PARENT = Path.home() / "plugins"
-DEFAULT_MARKETPLACE_PATH = Path.home() / ".agents" / "plugins" / "marketplace.json"
+DEFAULT_PLUGIN_PARENT = Path.cwd() / "plugins"
+DEFAULT_MARKETPLACE_PATH = Path.cwd() / ".agents" / "plugins" / "marketplace.json"
 DEFAULT_INSTALL_POLICY = "AVAILABLE"
 DEFAULT_AUTH_POLICY = "ON_INSTALL"
 DEFAULT_CATEGORY = "Productivity"
@@ -43,44 +43,22 @@ def validate_plugin_name(plugin_name: str) -> None:
 def build_plugin_json(plugin_name: str) -> dict:
     return {
         "name": plugin_name,
-        "version": "[TODO: 1.2.0]",
+        "version": "[TODO: 1.0.0]",
         "description": "[TODO: Brief plugin description]",
         "author": {
             "name": "[TODO: Author Name]",
-            "email": "[TODO: author@example.com]",
             "url": "[TODO: https://github.com/author]",
         },
-        "homepage": "[TODO: https://docs.example.com/plugin]",
-        "repository": "[TODO: https://github.com/author/plugin]",
-        "license": "[TODO: MIT]",
-        "keywords": ["[TODO: keyword1]", "[TODO: keyword2]"],
-        "skills": "[TODO: ./skills/]",
-        "hooks": "[TODO: ./hooks.json]",
-        "mcpServers": "[TODO: ./.mcp.json]",
-        "apps": "[TODO: ./.app.json]",
+        "repository": "[TODO: https://github.com/author/repository]",
+        "skills": "./skills/",
         "interface": {
             "displayName": "[TODO: Plugin Display Name]",
             "shortDescription": "[TODO: Short description for subtitle]",
             "longDescription": "[TODO: Long description for details page]",
-            "developerName": "[TODO: OpenAI]",
+            "developerName": "[TODO: Developer Name]",
             "category": "[TODO: Productivity]",
-            "capabilities": ["[TODO: Interactive]", "[TODO: Write]"],
-            "websiteURL": "[TODO: https://openai.com/]",
-            "privacyPolicyURL": "[TODO: https://openai.com/policies/row-privacy-policy/]",
-            "termsOfServiceURL": "[TODO: https://openai.com/policies/row-terms-of-use/]",
-            "defaultPrompt": [
-                "[TODO: Summarize my inbox and draft replies for me.]",
-                "[TODO: Find open bugs and turn them into tickets.]",
-                "[TODO: Review today's meetings and flag gaps.]",
-            ],
-            "brandColor": "[TODO: #3B82F6]",
-            "composerIcon": "[TODO: ./assets/icon.png]",
-            "logo": "[TODO: ./assets/logo.png]",
-            "screenshots": [
-                "[TODO: ./assets/screenshot1.png]",
-                "[TODO: ./assets/screenshot2.png]",
-                "[TODO: ./assets/screenshot3.png]",
-            ],
+            "capabilities": ["[TODO: Skill capability]"],
+            "defaultPrompt": "[TODO: Describe the default way to use this plugin.]",
         },
     }
 
@@ -185,16 +163,13 @@ def create_stub_file(path: Path, payload: dict, force: bool) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create a plugin skeleton with placeholder plugin.json."
+        description="Create a repository-managed plugin skeleton with plugin.json."
     )
     parser.add_argument("plugin_name")
     parser.add_argument(
         "--path",
         default=str(DEFAULT_PLUGIN_PARENT),
-        help=(
-            "Parent directory for plugin creation (defaults to <home>/plugins). "
-            "Use <repo>/plugins when creating a repo/team plugin."
-        ),
+        help="Parent directory for plugin creation (defaults to ./plugins from the current repository root).",
     )
     parser.add_argument("--with-skills", action="store_true", help="Create skills/ directory")
     parser.add_argument("--with-hooks", action="store_true", help="Create hooks/ directory")
@@ -205,19 +180,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--with-marketplace",
         action="store_true",
-        help=(
-            "Create or update <home>/.agents/plugins/marketplace.json by default. "
-            "Marketplace entries always point to ./plugins/<plugin-name> relative to the "
-            "marketplace root."
-        ),
+        help="Create or update ./.agents/plugins/marketplace.json by default.",
     )
     parser.add_argument(
         "--marketplace-path",
         default=str(DEFAULT_MARKETPLACE_PATH),
-        help=(
-            "Path to marketplace.json (defaults to <home>/.agents/plugins/marketplace.json). "
-            "Use <repo>/.agents/plugins/marketplace.json for a repo/team plugin."
-        ),
+        help="Path to marketplace.json (defaults to ./.agents/plugins/marketplace.json).",
     )
     parser.add_argument(
         "--install-policy",
@@ -256,7 +224,6 @@ def main() -> None:
 
     optional_directories = {
         "skills": args.with_skills,
-        "hooks": args.with_hooks,
         "scripts": args.with_scripts,
         "assets": args.with_assets,
     }
@@ -264,21 +231,14 @@ def main() -> None:
         if enabled:
             (plugin_root / folder).mkdir(parents=True, exist_ok=True)
 
+    if args.with_hooks:
+        create_stub_file(plugin_root / "hooks.json", {"hooks": {}}, args.force)
+
     if args.with_mcp:
-        create_stub_file(
-            plugin_root / ".mcp.json",
-            {"mcpServers": {}},
-            args.force,
-        )
+        create_stub_file(plugin_root / ".mcp.json", {"mcpServers": {}}, args.force)
 
     if args.with_apps:
-        create_stub_file(
-            plugin_root / ".app.json",
-            {
-                "apps": {},
-            },
-            args.force,
-        )
+        create_stub_file(plugin_root / ".app.json", {"apps": {}}, args.force)
 
     if args.with_marketplace:
         marketplace_path = Path(args.marketplace_path).expanduser().resolve()
@@ -291,7 +251,7 @@ def main() -> None:
             args.force,
         )
 
-    print(f"Created plugin scaffold: {plugin_root}")
+    print(f"Created repository plugin scaffold: {plugin_root}")
     print(f"plugin manifest: {plugin_json_path}")
     if args.with_marketplace:
         print(f"marketplace manifest: {marketplace_path}")
