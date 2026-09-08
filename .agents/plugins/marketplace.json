@@ -1,14 +1,14 @@
 {
-  "name": "skills",
+  "name": "thomas-skills",
   "interface": {
     "displayName": "Thomas Skills"
   },
   "plugins": [
     {
-      "name": "chatgpt-plugin-skill-builder",
+      "name": "plugin-creator",
       "source": {
         "source": "local",
-        "path": "./plugins/chatgpt-plugin-skill-builder"
+        "path": "./plugins/plugin-creator"
       },
       "policy": {
         "installation": "AVAILABLE",
