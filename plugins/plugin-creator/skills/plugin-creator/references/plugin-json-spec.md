@@ -1,119 +1,86 @@
-# Plugin JSON sample spec
+# Plugin JSON reference
+
+Use `.codex-plugin/plugin.json` at the plugin root.
+
+## Skills-only example
 
 ```json
 {
   "name": "plugin-name",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "description": "Brief plugin description",
   "author": {
     "name": "Author Name",
-    "email": "author@example.com",
     "url": "https://github.com/author"
   },
-  "homepage": "https://docs.example.com/plugin",
-  "repository": "https://github.com/author/plugin",
-  "license": "MIT",
-  "keywords": ["keyword1", "keyword2"],
+  "repository": "https://github.com/author/repository",
   "skills": "./skills/",
-  "hooks": "./hooks.json",
-  "mcpServers": "./.mcp.json",
-  "apps": "./.app.json",
   "interface": {
     "displayName": "Plugin Display Name",
-    "shortDescription": "Short description for subtitle",
-    "longDescription": "Long description for details page",
-    "developerName": "OpenAI",
+    "shortDescription": "Short description",
+    "longDescription": "Longer description of the plugin workflow.",
+    "developerName": "Author Name",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],
-    "websiteURL": "https://openai.com/",
-    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
-    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
     "defaultPrompt": [
-      "Summarize my inbox and draft replies for me.",
-      "Find open bugs and turn them into Linear tickets.",
-      "Review today's meetings and flag scheduling gaps."
+      "Use this plugin for its primary workflow."
     ],
-    "brandColor": "#3B82F6",
-    "composerIcon": "./assets/icon.png",
-    "logo": "./assets/logo.png",
-    "screenshots": [
-      "./assets/screenshot1.png",
-      "./assets/screenshot2.png",
-      "./assets/screenshot3.png"
-    ]
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg"
   }
 }
 ```
 
-## Field guide
+## Component fields
 
-### Top-level fields
+- `skills`: relative path to bundled skills.
+- `hooks`: optional hook configuration path.
+- `mcpServers`: optional MCP configuration path or supported inline configuration.
+- `apps`: optional app manifest path.
 
-- `name` (`string`): Plugin identifier (kebab-case, no spaces). Required if `plugin.json` is provided and used as manifest name and component namespace.
-- `version` (`string`): Plugin semantic version.
-- `description` (`string`): Short purpose summary.
-- `author` (`object`): Publisher identity.
-  - `name` (`string`): Author or team name.
-  - `email` (`string`): Contact email.
-  - `url` (`string`): Author/team homepage or profile URL.
-- `homepage` (`string`): Documentation URL for plugin usage.
-- `repository` (`string`): Source code URL.
-- `license` (`string`): License identifier (for example `MIT`, `Apache-2.0`).
-- `keywords` (`array` of `string`): Search/discovery tags.
-- `skills` (`string`): Relative path to skill directories/files.
-- `hooks` (`string`): Hook config path.
-- `mcpServers` (`string`): MCP config path.
-- `apps` (`string`): App manifest path for plugin integrations.
-- `interface` (`object`): Interface/UX metadata block for plugin presentation.
+For a skills-only plugin, declare `skills` and omit MCP/app/hook component fields unless those components actually exist.
 
-### `interface` fields
+## Interface fields
 
-- `displayName` (`string`): User-facing title shown for the plugin.
-- `shortDescription` (`string`): Brief subtitle used in compact views.
-- `longDescription` (`string`): Longer description used on details screens.
-- `developerName` (`string`): Human-readable publisher name.
-- `category` (`string`): Plugin category bucket.
-- `capabilities` (`array` of `string`): Capability list from implementation.
-- `websiteURL` (`string`): Public website for the plugin.
-- `privacyPolicyURL` (`string`): Privacy policy URL.
-- `termsOfServiceURL` (`string`): Terms of service URL.
-- `defaultPrompt` (`array` of `string`): Starter prompts shown in composer/UX context.
-  - Include at most 3 strings. Entries after the first 3 are ignored and will not be included.
-  - Each string is capped at 128 characters. Longer entries are truncated.
-  - Prefer short starter prompts around 50 characters so they scan well in the UI.
-- `brandColor` (`string`): Theme color for the plugin card.
-- `composerIcon` (`string`): Path to icon asset.
-- `logo` (`string`): Path to logo asset.
-- `screenshots` (`array` of `string`): List of screenshot asset paths.
-  - Screenshot entries must be PNG filenames and stored under `./assets/`.
-  - Keep file paths relative to plugin root.
+- `displayName`: user-facing plugin name.
+- `shortDescription`: compact subtitle.
+- `longDescription`: fuller workflow description.
+- `developerName`: publisher name.
+- `category`: plugin category.
+- `capabilities`: implementation-derived capabilities.
+- `websiteURL`: optional website.
+- `privacyPolicyURL`: optional privacy policy.
+- `termsOfServiceURL`: optional terms URL.
+- `defaultPrompt`: array of at most three starter prompts; keep each prompt under 128 characters.
+- `brandColor`: optional brand color.
+- `composerIcon`: relative asset path.
+- `logo`: relative asset path.
+- `screenshots`: optional PNG paths under `./assets/`.
 
-### Path conventions and defaults
+All component and asset paths are relative to the plugin root and should begin with `./`.
 
-- Path values should be relative and begin with `./`.
-- `skills`, `hooks`, and `mcpServers` are supplemented on top of default component discovery; they do not replace defaults.
-- Custom path values must follow the plugin root convention and naming/namespacing rules.
-- This repo’s scaffold writes `.codex-plugin/plugin.json`; treat that as the manifest location this skill generates.
+# GitHub marketplace JSON reference
 
-# Marketplace JSON sample spec
+For a GitHub-hosted marketplace imported by ChatGPT, place the manifest at:
 
-`marketplace.json` depends on where the plugin should live:
+```text
+<repo-root>/.agents/plugins/marketplace.json
+```
 
-- Personal plugin: `~/.agents/plugins/marketplace.json`
-- Repo/team plugin: `<repo-root>/.agents/plugins/marketplace.json`
+Example:
 
 ```json
 {
-  "name": "openai-curated",
+  "name": "team-plugins",
   "interface": {
-    "displayName": "ChatGPT Official"
+    "displayName": "Team Plugins"
   },
   "plugins": [
     {
-      "name": "linear",
+      "name": "plugin-name",
       "source": {
         "source": "local",
-        "path": "./plugins/linear"
+        "path": "./plugins/plugin-name"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -125,49 +92,25 @@
 }
 ```
 
-## Marketplace field guide
+## Marketplace rules
 
-### Top-level fields
+- `name`: marketplace identifier.
+- `interface.displayName`: optional human-facing marketplace name.
+- `plugins`: ordered plugin entries.
+- Plugin entry `name` must match the plugin folder and `plugin.json` name.
+- Same-repository plugin sources use `source: "local"` and `path: "./plugins/<plugin-name>"`.
+- `policy.installation` values: `NOT_AVAILABLE`, `AVAILABLE`, `INSTALLED_BY_DEFAULT`.
+- `policy.authentication` values: `ON_INSTALL`, `ON_USE`.
+- New entries default to `AVAILABLE` and `ON_INSTALL` unless another policy is explicitly required.
+- Omit `policy.products` unless product gating is explicitly required.
+- Preserve unrelated existing marketplace entries.
 
-- `name` (`string`): Marketplace identifier or catalog name.
-- `interface` (`object`, optional): Marketplace presentation metadata.
-- `plugins` (`array`): Ordered plugin entries. This order determines how Codex renders plugins.
+## ChatGPT import boundary
 
-### `interface` fields
+The GitHub repository is the distribution source. ChatGPT workspace admins import the repository from Workspace settings > Plugins > Add > Import marketplace. When `.agents/plugins/marketplace.json` is at repository root, leave the Path field empty.
 
-- `displayName` (`string`, optional): User-facing marketplace title.
+Creating or pushing repository files does not itself prove that the plugin is installed in ChatGPT. Treat installation as verified only after ChatGPT reports a successful import/install.
 
-### Plugin entry fields
+## Local Codex-only exception
 
-- `name` (`string`): Plugin identifier. Match the plugin folder name and `plugin.json` `name`.
-- `source` (`object`): Plugin source descriptor.
-  - `source` (`string`): Use `local` for this repo workflow.
-  - `path` (`string`): Relative plugin path based on the marketplace root.
-    - Personal plugin in `~/.agents/plugins/marketplace.json`: `./plugins/<plugin-name>`
-    - Repo/team plugin: `./plugins/<plugin-name>`
-  - The same relative path convention is used for both personal and repo/team marketplaces.
-    - Example: with `~/.agents/plugins/marketplace.json`, `./plugins/<plugin-name>` resolves to `~/plugins/<plugin-name>`.
-- `policy` (`object`): Marketplace policy block. Always include it.
-  - `installation` (`string`): Availability policy.
-    - Allowed values: `NOT_AVAILABLE`, `AVAILABLE`, `INSTALLED_BY_DEFAULT`
-    - Default for new entries: `AVAILABLE`
-  - `authentication` (`string`): Authentication timing policy.
-    - Allowed values: `ON_INSTALL`, `ON_USE`
-    - Default for new entries: `ON_INSTALL`
-  - `products` (`array` of `string`, optional): Product override for this plugin entry. Omit it unless product gating is explicitly requested.
-- `category` (`string`): Display category bucket. Always include it.
-
-### Marketplace generation rules
-
-- `displayName` belongs under the top-level `interface` object, not individual plugin entries.
-- When creating a new marketplace file from scratch, seed `interface.displayName` alongside top-level `name`.
-- Always include `policy.installation`, `policy.authentication`, and `category` on every generated or updated plugin entry.
-- Treat `policy.products` as an override and omit it unless explicitly requested.
-- Append new entries unless the user explicitly requests reordering.
-- Replace an existing entry for the same plugin only when overwrite is intentional.
-- Default new plugin creation to the personal marketplace.
-- If the current Git repo already has `.agents/plugins/marketplace.json` and the user has not said
-  personal or team, ask which marketplace to update before creating the entry.
-- Choose marketplace location to match the selected destination:
-  - Personal plugin: `~/.agents/plugins/marketplace.json`
-  - Repo/team plugin: `<repo-root>/.agents/plugins/marketplace.json`
+A home-local marketplace such as `~/.agents/plugins/marketplace.json` is appropriate only when the user explicitly asks for a local Codex plugin. Do not substitute that destination for a GitHub/ChatGPT marketplace request.
