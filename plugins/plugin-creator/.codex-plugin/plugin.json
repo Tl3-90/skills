@@ -21,6 +21,8 @@
       "Create and update GitHub-hosted plugin marketplaces.",
       "Validate plugin manifests and repository-relative paths."
     ],
-    "defaultPrompt": "Package this skill as a GitHub-hosted plugin, register it in the repository marketplace, and validate it for ChatGPT marketplace import."
+    "defaultPrompt": [
+      "Package this skill as a GitHub-hosted plugin for ChatGPT marketplace import."
+    ]
   }
 }
