@@ -1,101 +1,42 @@
 ---
 name: plugin-creator
-description: Create and scaffold plugin directories for Codex with a required `.codex-plugin/plugin.json`, optional plugin folders/files, and baseline placeholders you can edit before publishing or testing. Use when Codex needs to create a new personal plugin, add optional plugin structure, or generate or update personal or repo-root `.agents/plugins/marketplace.json` entries for plugin ordering and availability metadata.
+description: Create and maintain GitHub-hosted plugin marketplaces for ChatGPT and Codex. Use when packaging skills into plugins, creating or updating repository-root .agents/plugins/marketplace.json catalogs, validating plugin manifests, or preparing a GitHub repository for ChatGPT marketplace import.
 ---
 
 # Plugin Creator
 
-## Quick Start
+Create plugins as repository-managed packages intended for GitHub marketplace import into ChatGPT and Codex.
 
-1. Run the scaffold script:
+## Default target
 
-```bash
-  # Plugin names are normalized to lower-case hyphen-case and must be <= 64 chars.
-  # The generated folder and plugin.json name are always the same.
-# Run from repo root (or replace .agents/... with the absolute path to this SKILL).
-# By default creates in ~/plugins/<plugin-name>.
-python3 .agents/skills/plugin-creator/scripts/create_basic_plugin.py <plugin-name>
+Unless the user explicitly requests a local Codex-only plugin, treat the current Git repository as the distribution source.
+
+Use this layout:
+
+```text
+<repo-root>/
+├── .agents/
+│   └── plugins/
+│       └── marketplace.json
+└── plugins/
+    └── <plugin-name>/
+        ├── .codex-plugin/
+        │   └── plugin.json
+        ├── skills/          # when the plugin contains skills
+        ├── assets/          # when required
+        ├── hooks.json       # only when required
+        ├── .mcp.json        # only when explicitly required
+        └── .app.json        # only when explicitly required
 ```
 
-2. Open `<plugin-path>/.codex-plugin/plugin.json` and replace `[TODO: ...]` placeholders.
+`.codex-plugin/plugin.json` is the plugin package manifest. Its name does not mean the finished repository must be installed locally in Codex.
 
-3. Generate or update the personal marketplace entry when the plugin should appear in Codex UI ordering:
+## GitHub marketplace workflow
 
-```bash
-# Personal marketplace entries default to ~/.agents/plugins/marketplace.json.
-python3 .agents/skills/plugin-creator/scripts/create_basic_plugin.py my-plugin --with-marketplace
-```
-
-If the current Git repo already has `.agents/plugins/marketplace.json` and the user has not said
-whether the plugin is personal or shared with their team, ask before generating a marketplace entry.
-When they choose the repo marketplace, use:
-
-```bash
-python3 .agents/skills/plugin-creator/scripts/create_basic_plugin.py my-plugin \
-  --path ./plugins \
-  --marketplace-path ./.agents/plugins/marketplace.json \
-  --with-marketplace
-```
-
-4. Generate/adjust optional companion folders as needed:
-
-```bash
-python3 .agents/skills/plugin-creator/scripts/create_basic_plugin.py my-plugin \
-  --path <parent-plugin-directory> \
-  --marketplace-path <marketplace-json-path> \
-  --with-skills --with-hooks --with-scripts --with-assets --with-mcp --with-apps --with-marketplace
-```
-
-`<parent-plugin-directory>` is the directory where the plugin folder `<plugin-name>` will be created (for example `~/code/plugins`).
-
-## What this skill creates
-
-- Default marketplace-backed scaffolds are personal: `~/plugins/<plugin-name>/` plus
-  `~/.agents/plugins/marketplace.json`.
-- If the current Git repo already has `.agents/plugins/marketplace.json` and the user has not said
-  personal vs team, ask which marketplace to update before generating a marketplace entry.
-- Creates plugin root at `/<parent-plugin-directory>/<plugin-name>/`.
-- Always creates `/<parent-plugin-directory>/<plugin-name>/.codex-plugin/plugin.json`.
-- Fills the manifest with the full schema shape, placeholder values, and the complete `interface` section.
-- Creates or updates the selected marketplace when `--with-marketplace` is set.
-  - If the marketplace file does not exist yet, seed top-level `name` plus `interface.displayName` placeholders before adding the first plugin entry.
-- `<plugin-name>` is normalized using skill-creator naming rules:
-  - `My Plugin` → `my-plugin`
-  - `My--Plugin` → `my-plugin`
-  - underscores, spaces, and punctuation are converted to `-`
-  - result is lower-case hyphen-delimited with consecutive hyphens collapsed
-- Supports optional creation of:
-  - `skills/`
-  - `hooks/`
-  - `scripts/`
-  - `assets/`
-  - `.mcp.json`
-  - `.app.json`
-
-## Marketplace workflow
-
-- Personal plugins use `~/.agents/plugins/marketplace.json`.
-- Repo/team plugins use `<repo-root>/.agents/plugins/marketplace.json`.
-- Marketplace root metadata supports top-level `name` plus optional `interface.displayName`.
-- Treat plugin order in `plugins[]` as render order in Codex. Append new entries unless a user explicitly asks to reorder the list.
-- `displayName` belongs inside the marketplace `interface` object, not individual `plugins[]` entries.
-- Each generated marketplace entry must include all of:
-  - `policy.installation`
-  - `policy.authentication`
-  - `category`
-- Default new entries to:
-  - `policy.installation: "AVAILABLE"`
-  - `policy.authentication: "ON_INSTALL"`
-- Override defaults only when the user explicitly specifies another allowed value.
-- Allowed `policy.installation` values:
-  - `NOT_AVAILABLE`
-  - `AVAILABLE`
-  - `INSTALLED_BY_DEFAULT`
-- Allowed `policy.authentication` values:
-  - `ON_INSTALL`
-  - `ON_USE`
-- Treat `policy.products` as an override. Omit it unless the user explicitly requests product gating.
-- The generated plugin entry shape is:
+1. Locate the Git repository root.
+2. Create the plugin under `<repo-root>/plugins/<plugin-name>`.
+3. Create or update `<repo-root>/.agents/plugins/marketplace.json`.
+4. Register the plugin with a repository-relative source:
 
 ```json
 {
@@ -112,67 +53,88 @@ python3 .agents/skills/plugin-creator/scripts/create_basic_plugin.py my-plugin \
 }
 ```
 
-- Use `--force` only when intentionally replacing an existing marketplace entry for the same plugin name.
-- If the selected marketplace file does not exist yet, create it with top-level `"name"`, an `"interface"` object containing `"displayName"`, and a `plugins` array, then add the new entry.
+5. Validate JSON, referenced paths, skill contents, and required supporting files.
+6. Commit and push the repository when the user requested GitHub publication and GitHub write access is available.
+7. Treat the pushed GitHub repository as the distribution source. Do not claim that creating local files installed the plugin in ChatGPT.
 
-- For a brand-new marketplace file, the root object should look like:
+For ChatGPT workspace import, the repository root contains `.agents/plugins/marketplace.json`. ChatGPT workspace admins import the repository from Workspace settings > Plugins > Add > Import marketplace. If the marketplace manifest is at the repository root, no subdirectory Path is required.
 
-```json
-{
-  "name": "[TODO: marketplace-name]",
-  "interface": {
-    "displayName": "[TODO: Marketplace Display Name]"
-  },
-  "plugins": [
-    {
-      "name": "plugin-name",
-      "source": {
-        "source": "local",
-        "path": "./plugins/plugin-name"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
-  ]
-}
-```
+## Skills-only plugins
 
-## Required behavior
+A plugin may contain only skills. For a skills-only plugin:
 
-- Outer folder name and `plugin.json` `"name"` are always the same normalized plugin name.
-- Do not remove required structure; keep `.codex-plugin/plugin.json` present.
-- Keep manifest values as placeholders until a human or follow-up step explicitly fills them.
-- If creating files inside an existing plugin path, use `--force` only when overwrite is intentional.
-- Preserve any existing marketplace `interface.displayName`.
-- When generating marketplace entries, always write `policy.installation`, `policy.authentication`, and `category` even if their values are defaults.
-- Add `policy.products` only when the user explicitly asks for that override.
-- Keep marketplace `source.path` relative to the selected marketplace root as `./plugins/<plugin-name>`.
-- When the workflow created or updated a marketplace-backed plugin, end the final user-facing
-  response with a short Codex app handoff. Say `To view this in the Codex app:` and write
-  `View <normalized plugin name>` and `Share <normalized plugin name>` as Markdown links, not raw
-  URLs or code spans.
-- The View deeplink uses `codex://plugins/<normalized plugin name>?marketplacePath=<absolute marketplace.json path>`.
-  The Share deeplink uses the same URL with `&mode=share`.
-- Replace the placeholders with the real normalized plugin name and absolute `marketplace.json`
-  path from the scaffolded plugin. URL-encode the path segment and query value when needed.
-- Do not add `pluginName` or `hostId` query parameters to these deeplinks. Codex derives both after
-  the user clicks the link.
-- Do not emit the `View <normalized plugin name>` or `Share <normalized plugin name>` links when no marketplace entry was
-  created or updated.
+- Set `"skills": "./skills/"` in `.codex-plugin/plugin.json`.
+- Do not create `.mcp.json`, MCP servers, `.app.json`, apps, widgets, or backend infrastructure unless the user explicitly needs those components.
+- Preserve every file required by the packaged skill, including scripts, references, agents metadata, templates, or assets that it actually uses.
 
-## Reference to exact spec sample
+## Creating a plugin
 
-For the exact canonical sample JSON for both plugin manifests and marketplace entries, use:
-
-- `references/plugin-json-spec.md`
-
-## Validation
-
-After editing `SKILL.md`, run:
+Use the scaffold script from this skill when useful:
 
 ```bash
-python3 <path-to-skill-creator>/scripts/quick_validate.py .agents/skills/plugin-creator
+python3 <path-to-this-skill>/scripts/create_basic_plugin.py <plugin-name> \
+  --path ./plugins \
+  --marketplace-path ./.agents/plugins/marketplace.json \
+  --with-marketplace \
+  --with-skills
 ```
+
+Plugin names are normalized to lowercase hyphen-case and must be 64 characters or fewer.
+
+If the current repository already contains `.agents/plugins/marketplace.json`, preserve its existing marketplace metadata and unrelated plugin entries.
+
+## Optional components
+
+Create optional components only when required by the requested plugin:
+
+- `skills/`
+- `hooks.json`
+- `scripts/`
+- `assets/`
+- `.mcp.json`
+- `.app.json`
+
+Do not add MCP or app components to a skills-only plugin merely because the scaffold supports them.
+
+## Marketplace rules
+
+- Repository/team marketplaces use `<repo-root>/.agents/plugins/marketplace.json`.
+- Marketplace root metadata supports top-level `name` and optional `interface.displayName`.
+- Preserve existing entries and ordering unless the user requests a change.
+- Each generated marketplace entry includes `policy.installation`, `policy.authentication`, and `category`.
+- Default `policy.installation` to `AVAILABLE`.
+- Default `policy.authentication` to `ON_INSTALL`.
+- Allowed installation values: `NOT_AVAILABLE`, `AVAILABLE`, `INSTALLED_BY_DEFAULT`.
+- Allowed authentication values: `ON_INSTALL`, `ON_USE`.
+- Add `policy.products` only when explicitly required.
+- Keep same-repository plugin sources relative: `./plugins/<plugin-name>`.
+- Use `--force` only when intentionally replacing an existing entry or file.
+
+## Manifest rules
+
+- The plugin folder name and `plugin.json` `name` must use the same normalized plugin name.
+- Keep `.codex-plugin/plugin.json` present.
+- Include only component fields that the finished plugin actually provides. Do not leave placeholder MCP/app/hook paths in a skills-only plugin.
+- Resolve all relative paths from the plugin root and verify each referenced file or directory exists.
+- Human-facing metadata should accurately describe the plugin's actual behavior and supported surfaces.
+
+For the manifest schema reference bundled with this skill, use `references/plugin-json-spec.md`.
+
+## Validation gate
+
+Before declaring completion:
+
+1. Parse `.agents/plugins/marketplace.json` as JSON.
+2. Parse every referenced `.codex-plugin/plugin.json` as JSON.
+3. Verify each marketplace `source.path` resolves to an existing plugin directory.
+4. Verify every component path declared by `plugin.json` exists.
+5. For every skill, verify `SKILL.md` exists and required supporting files are present.
+6. Confirm skills-only plugins do not accidentally declare MCP or app components.
+7. If GitHub publication was requested, validate the repository state after push rather than only the local working tree.
+8. Do not claim ChatGPT installation unless ChatGPT itself confirms the import/install.
+
+If validation fails, correct the failure and repeat the validation gate.
+
+## Local Codex-only mode
+
+Use `~/plugins/<plugin-name>` and `~/.agents/plugins/marketplace.json` only when the user explicitly requests a personal/local Codex plugin. Do not silently substitute this mode for a GitHub/ChatGPT marketplace request.
