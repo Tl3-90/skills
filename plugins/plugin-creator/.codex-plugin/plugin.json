@@ -1,0 +1,26 @@
+{
+  "name": "plugin-creator",
+  "version": "1.0.0",
+  "description": "Package the official OpenAI Plugin Creator skill for ChatGPT and Codex.",
+  "author": {
+    "name": "Tl3-90",
+    "url": "https://github.com/Tl3-90/skills"
+  },
+  "repository": "https://github.com/Tl3-90/skills",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Plugin Creator",
+    "shortDescription": "Scaffold plugin marketplaces",
+    "longDescription": "The official OpenAI Plugin Creator skill for scaffolding plugin directories, supported manifests, optional plugin components, and personal or repository marketplace entries.",
+    "developerName": "Tl3-90",
+    "category": "Productivity",
+    "logo": "./assets/plugin-creator.svg",
+    "composerIcon": "./assets/plugin-creator.svg",
+    "capabilities": [
+      "Scaffold plugin directories and marketplace entries.",
+      "Create supported plugin manifests and optional component folders.",
+      "Register plugins in personal or repository marketplaces."
+    ],
+    "defaultPrompt": "Use plugin-creator to scaffold a plugin and register it in the appropriate marketplace."
+  }
+}
