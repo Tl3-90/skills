@@ -1,0 +1,40 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "incident-report-builder",
+  "version": "1.0.0",
+  "description": "Turn rough IT troubleshooting notes into structured, evidence-based incident reports in ChatGPT.",
+  "author": {
+    "name": "Tl3-90",
+    "url": "https://github.com/Tl3-90"
+  },
+  "homepage": "https://github.com/Tl3-90/skills/tree/main/plugins/incident-report-builder",
+  "repository": "https://github.com/Tl3-90/skills",
+  "keywords": [
+    "chatgpt",
+    "incident-reporting",
+    "it-operations",
+    "troubleshooting",
+    "documentation"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Incident Report Builder",
+        "shortDescription": "Turn troubleshooting notes into incident reports",
+        "longDescription": "Converts rough IT troubleshooting notes into concise, structured incident reports while separating observed evidence from assumptions, documenting actions and results, and preserving unresolved items.",
+        "developerName": "Tl3-90",
+        "category": "Productivity",
+        "capabilities": [
+          "Structure rough troubleshooting notes.",
+          "Separate evidence from inference.",
+          "Build incident timelines.",
+          "Document actions, outcomes, and unresolved items."
+        ],
+        "defaultPrompt": [
+          "Turn these troubleshooting notes into a structured incident report.",
+          "Build an evidence-based incident report from this incident timeline."
+        ]
+      }
+    }
+  }
+}
