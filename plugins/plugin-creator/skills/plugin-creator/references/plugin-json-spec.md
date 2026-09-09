@@ -33,8 +33,6 @@ The current portable package format uses a root `plugin.json`.
 
 Skills are discovered from `skills/<skill-name>/SKILL.md`. Do not declare `skills` in the portable root manifest.
 
-A legacy `.codex-plugin/plugin.json` may remain as a compatibility fallback. In that fallback only, `"skills": "./skills/"` is accepted.
-
 ## Repository marketplace
 
 Place the catalog at `.agents/plugins/marketplace.json` in the repository root. Same-repository entries use a relative local source:
@@ -56,7 +54,7 @@ Place the catalog at `.agents/plugins/marketplace.json` in the repository root. 
 
 The marketplace file is a distribution catalog, not proof of installation. Workspace admins can import a GitHub marketplace. Installed plugin skills are then available in new ChatGPT chats on supported web, desktop, and mobile surfaces.
 
-## Mobile checklist
+## ChatGPT checklist
 
 - Core behavior lives in `SKILL.md`.
 - No required shell, local path, hook, or local-only service.
@@ -64,3 +62,4 @@ The marketplace file is a distribution catalog, not proof of installation. Works
 - All references and assets are bundled.
 - Root portable manifest is present.
 - Marketplace entry resolves inside the repository.
+- No runtime-specific compatibility manifest is created unless explicitly requested.
