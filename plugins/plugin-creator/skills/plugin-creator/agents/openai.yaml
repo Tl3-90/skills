@@ -1,9 +1,8 @@
 interface:
   display_name: "Plugin Creator"
   short_description: "Build mobile-ready ChatGPT skill plugins"
-  default_prompt: "Use $plugin-creator to create or update a portable skills-only plugin in my GitHub repository for ChatGPT mobile."
+  default_prompt: "Create or update a portable skills-only plugin in my GitHub repository for ChatGPT."
 policy:
   products:
     - CHAT
-    - CODEX
   allow_implicit_invocation: true
