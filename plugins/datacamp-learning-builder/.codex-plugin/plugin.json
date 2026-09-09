@@ -1,0 +1,40 @@
+{
+  "name": "datacamp-learning-builder",
+  "version": "1.0.0",
+  "description": "Use DataCamp as a structured learning source to research topics and build reusable ChatGPT learning workflows.",
+  "author": {
+    "name": "Tl3-90",
+    "url": "https://github.com/Tl3-90"
+  },
+  "homepage": "https://github.com/Tl3-90/skills/tree/main/plugins/datacamp-learning-builder",
+  "repository": "https://github.com/Tl3-90/skills",
+  "keywords": [
+    "datacamp",
+    "learning",
+    "courses",
+    "skills",
+    "chatgpt",
+    "education"
+  ],
+  "skills": "./skills/",
+  "apps": "./.app.json",
+  "interface": {
+    "displayName": "DataCamp Learning Builder",
+    "shortDescription": "Build reusable learning workflows from DataCamp",
+    "longDescription": "Search DataCamp courses, chapters, exercises, tutorials, webinars, and code-alongs, then organize the retrieved material into structured reusable learning workflows for ChatGPT. The plugin keeps DataCamp as the live content source instead of copying the catalog into the plugin.",
+    "developerName": "Tl3-90",
+    "category": "Education",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://www.datacamp.com/",
+    "defaultPrompt": [
+      "Find the best DataCamp material for this topic and build a structured learning workflow from it.",
+      "Use DataCamp to research this subject and turn the results into a reusable skill outline.",
+      "Build a progressive course plan from relevant DataCamp content."
+    ],
+    "brandColor": "#03EF62",
+    "screenshots": []
+  }
+}
