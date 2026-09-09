@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scaffold a repository-managed plugin and optionally update marketplace.json."""
+"""Scaffold a repository-managed ChatGPT plugin and optionally update marketplace.json."""
 
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ def validate_plugin_name(plugin_name: str) -> None:
         )
 
 
-def build_portable_plugin_json(plugin_name: str) -> dict:
+def build_plugin_json(plugin_name: str) -> dict:
     display_name = plugin_name.replace("-", " ").title()
     return {
         "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -65,29 +65,6 @@ def build_portable_plugin_json(plugin_name: str) -> dict:
         },
     }
 
-
-def build_compatibility_plugin_json(plugin_name: str, with_skills: bool) -> dict:
-    display_name = plugin_name.replace("-", " ").title()
-    payload = {
-        "name": plugin_name,
-        "version": "1.0.0",
-        "description": f"Reusable workflows provided by the {display_name} plugin.",
-        "author": {"name": "Plugin Author"},
-        "interface": {
-            "displayName": display_name,
-            "shortDescription": f"Use {display_name} workflows",
-            "longDescription": f"Reusable workflows packaged by {display_name}.",
-            "developerName": "Plugin Author",
-            "category": "Productivity",
-            "capabilities": ["Reusable skill workflow"],
-            "defaultPrompt": [
-                f"Use {display_name} for its primary workflow."
-            ],
-        },
-    }
-    if with_skills:
-        payload["skills"] = "./skills/"
-    return payload
 
 def build_marketplace_entry(
     plugin_name: str,
@@ -189,7 +166,7 @@ def create_stub_file(path: Path, payload: dict, force: bool) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create a repository-managed plugin skeleton with plugin.json."
+        description="Create a repository-managed ChatGPT plugin skeleton with plugin.json."
     )
     parser.add_argument("plugin_name")
     parser.add_argument(
@@ -242,17 +219,11 @@ def main() -> None:
         print(f"Note: Normalized plugin name from '{raw_plugin_name}' to '{plugin_name}'.")
     validate_plugin_name(plugin_name)
 
-    plugin_root = (Path(args.path).expanduser().resolve() / plugin_name)
+    plugin_root = Path(args.path).expanduser().resolve() / plugin_name
     plugin_root.mkdir(parents=True, exist_ok=True)
 
-    portable_manifest_path = plugin_root / "plugin.json"
-    compatibility_manifest_path = plugin_root / ".codex-plugin" / "plugin.json"
-    write_json(portable_manifest_path, build_portable_plugin_json(plugin_name), args.force)
-    write_json(
-        compatibility_manifest_path,
-        build_compatibility_plugin_json(plugin_name, args.with_skills),
-        args.force,
-    )
+    manifest_path = plugin_root / "plugin.json"
+    write_json(manifest_path, build_plugin_json(plugin_name), args.force)
 
     optional_directories = {
         "skills": args.with_skills,
@@ -284,8 +255,7 @@ def main() -> None:
         )
 
     print(f"Created repository plugin scaffold: {plugin_root}")
-    print(f"portable manifest: {portable_manifest_path}")
-    print(f"compatibility manifest: {compatibility_manifest_path}")
+    print(f"plugin manifest: {manifest_path}")
     if args.with_marketplace:
         print(f"marketplace manifest: {marketplace_path}")
 
