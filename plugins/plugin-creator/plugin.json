@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "plugin-creator",
-  "version": "1.1.0",
-  "description": "Create and maintain GitHub-hosted skills-only plugins that work in ChatGPT and Codex, including ChatGPT mobile.",
+  "version": "1.2.0",
+  "description": "Create and maintain GitHub-hosted skills-only plugins for ChatGPT, including ChatGPT mobile.",
   "author": {
     "name": "Tl3-90",
     "url": "https://github.com/Tl3-90"
@@ -13,7 +13,6 @@
     "skills",
     "plugins",
     "chatgpt",
-    "codex",
     "github",
     "mobile"
   ],
@@ -28,7 +27,7 @@
         "capabilities": [
           "Create portable skills-only plugins.",
           "Maintain GitHub marketplace metadata.",
-          "Prepare plugins for ChatGPT mobile distribution."
+          "Prepare plugins for ChatGPT distribution."
         ],
         "defaultPrompt": [
           "Create a mobile-ready ChatGPT skill plugin in my GitHub repository.",
