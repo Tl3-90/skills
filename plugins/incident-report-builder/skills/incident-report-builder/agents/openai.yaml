@@ -1,0 +1,8 @@
+interface:
+  display_name: "Incident Report Builder"
+  short_description: "Turn IT notes into evidence-based incident reports"
+  default_prompt: "Turn my troubleshooting notes into a structured incident report without inventing facts."
+policy:
+  products:
+    - CHAT
+  allow_implicit_invocation: true
