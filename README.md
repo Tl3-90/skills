@@ -1,10 +1,10 @@
 # Thomas Skills
 
-GitHub-hosted portable skill plugins for ChatGPT and Codex.
+GitHub-hosted portable skill plugins for ChatGPT.
 
 ## Plugin Creator
 
-`plugins/plugin-creator` packages reusable workflows as skills-only plugins. Its core instructions are designed to work in ChatGPT on web, desktop, and mobile when the plugin and required connected tools are available to the account.
+`plugins/plugin-creator` packages reusable workflows as skills-only plugins for ChatGPT. Its core instructions are designed to work in ChatGPT on web, desktop, and mobile when the plugin and required connected tools are available to the account.
 
 ## Install for ChatGPT mobile
 
@@ -28,5 +28,4 @@ For accounts without workspace marketplace import, submit `plugins/plugin-creato
 
 - `.agents/plugins/marketplace.json`: repository marketplace
 - `plugins/plugin-creator/plugin.json`: canonical portable manifest
-- `plugins/plugin-creator/.codex-plugin/plugin.json`: compatibility fallback
 - `plugins/plugin-creator/skills/plugin-creator/SKILL.md`: reusable workflow
