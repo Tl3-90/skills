@@ -1,17 +1,30 @@
 ---
 name: plugin-creator
-description: Create and maintain GitHub-hosted plugin marketplaces for ChatGPT and Codex. Use when packaging skills into plugins, creating or updating repository-root .agents/plugins/marketplace.json catalogs, validating plugin manifests, or preparing a GitHub repository for ChatGPT marketplace import.
+description: Create or update GitHub-hosted skills-only plugins for ChatGPT and Codex, including plugins intended for ChatGPT mobile. Use for portable plugin packaging, repository marketplace metadata, validation, and distribution preparation.
 ---
 
 # Plugin Creator
 
-Create plugins as repository-managed packages intended for GitHub marketplace import into ChatGPT and Codex.
+Create portable, skills-only plugins that work across ChatGPT and Codex. Treat ChatGPT mobile compatibility as a cloud distribution requirement: the core workflow must not depend on a local shell, local filesystem, or desktop-only hook.
 
-## Default target
+## Choose the execution path
 
-Unless the user explicitly requests a local Codex-only plugin, treat the current Git repository as the distribution source.
+### ChatGPT web or mobile
 
-Use this layout:
+Use an available GitHub connector to inspect and update the target repository. If GitHub tools are unavailable, ask the user to connect GitHub or return a complete package for upload. Do not pretend that a repository was changed.
+
+1. Resolve the exact repository and default branch.
+2. Inspect existing marketplace and plugin files before writing.
+3. Preserve unrelated files and marketplace entries.
+4. Create or update the portable package described below.
+5. Validate the complete repository state.
+6. Commit to GitHub when the user asked to publish or update the repository.
+
+### Codex desktop or CLI
+
+Use the same portable layout. Local scripts may help scaffold or validate it, but they are optional implementation aids and must not be required for the finished plugin to work in ChatGPT.
+
+## Required portable layout
 
 ```text
 <repo-root>/
@@ -20,23 +33,52 @@ Use this layout:
 │       └── marketplace.json
 └── plugins/
     └── <plugin-name>/
-        ├── .codex-plugin/
-        │   └── plugin.json
-        ├── skills/          # when the plugin contains skills
-        ├── assets/          # when required
-        ├── hooks.json       # only when required
-        ├── .mcp.json        # only when explicitly required
-        └── .app.json        # only when explicitly required
+        ├── plugin.json
+        ├── skills/
+        │   └── <skill-name>/
+        │       ├── SKILL.md
+        │       ├── agents/openai.yaml   # optional
+        │       ├── references/          # optional
+        │       ├── scripts/             # optional
+        │       └── assets/              # optional
+        ├── assets/                      # optional plugin artwork
+        └── .codex-plugin/
+            └── plugin.json              # optional compatibility fallback
 ```
 
-`.codex-plugin/plugin.json` is the plugin package manifest. Its name does not mean the finished repository must be installed locally in Codex.
+The root `plugin.json` is canonical. Portable plugins automatically discover skills under `skills/`; do not add a `skills` field to the root manifest. Keep `.codex-plugin/plugin.json` only as a compatibility fallback when useful.
 
-## GitHub marketplace workflow
+## Root plugin manifest
 
-1. Locate the Git repository root.
-2. Create the plugin under `<repo-root>/plugins/<plugin-name>`.
-3. Create or update `<repo-root>/.agents/plugins/marketplace.json`.
-4. Register the plugin with a repository-relative source:
+Use the Agent Plugins schema:
+
+```json
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "plugin-name",
+  "version": "1.0.0",
+  "description": "What this plugin does",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Plugin Name",
+        "shortDescription": "Short description",
+        "longDescription": "Longer description",
+        "developerName": "Publisher",
+        "category": "Productivity",
+        "capabilities": ["Primary capability"],
+        "defaultPrompt": ["Use this plugin for its primary workflow."]
+      }
+    }
+  }
+}
+```
+
+Use lowercase hyphen-case identifiers and strict semantic versions. Keep paths relative to the plugin root. Include only components that actually exist.
+
+## Repository marketplace
+
+Register each same-repository plugin in `.agents/plugins/marketplace.json`:
 
 ```json
 {
@@ -53,88 +95,34 @@ Use this layout:
 }
 ```
 
-5. Validate JSON, referenced paths, skill contents, and required supporting files.
-6. Commit and push the repository when the user requested GitHub publication and GitHub write access is available.
-7. Treat the pushed GitHub repository as the distribution source. Do not claim that creating local files installed the plugin in ChatGPT.
+Preserve existing marketplace identity, entry order, and unrelated entries unless the user requests a change.
 
-For ChatGPT workspace import, the repository root contains `.agents/plugins/marketplace.json`. ChatGPT workspace admins import the repository from Workspace settings > Plugins > Add > Import marketplace. If the marketplace manifest is at the repository root, no subdirectory Path is required.
+## Mobile compatibility rules
 
-## Skills-only plugins
+- Put the complete reusable workflow in `SKILL.md`.
+- Never require a bundled local script for the core workflow.
+- Use connected tools for GitHub or other external systems.
+- Treat scripts as optional desktop/CLI helpers.
+- Do not require lifecycle hooks; ChatGPT does not run plugin hooks.
+- Avoid instructions that depend on machine-local paths.
+- Do not claim that pushing a repository installed the plugin.
+- After installation, start a new ChatGPT chat so bundled skills are loaded.
 
-A plugin may contain only skills. For a skills-only plugin:
+## Distribution
 
-- Set `"skills": "./skills/"` in `.codex-plugin/plugin.json`.
-- Do not create `.mcp.json`, MCP servers, `.app.json`, apps, widgets, or backend infrastructure unless the user explicitly needs those components.
-- Preserve every file required by the packaged skill, including scripts, references, agents metadata, templates, or assets that it actually uses.
+For a private workspace marketplace, a workspace admin imports the GitHub repository from **Admin > Plugins > Add > Import marketplace**. After the plugin is installed and available to the account, it can be used in ChatGPT mobile Chat or Work.
 
-## Creating a plugin
-
-Use the scaffold script from this skill when useful:
-
-```bash
-python3 <path-to-this-skill>/scripts/create_basic_plugin.py <plugin-name> \
-  --path ./plugins \
-  --marketplace-path ./.agents/plugins/marketplace.json \
-  --with-marketplace \
-  --with-skills
-```
-
-Plugin names are normalized to lowercase hyphen-case and must be 64 characters or fewer.
-
-If the current repository already contains `.agents/plugins/marketplace.json`, preserve its existing marketplace metadata and unrelated plugin entries.
-
-## Optional components
-
-Create optional components only when required by the requested plugin:
-
-- `skills/`
-- `hooks.json`
-- `scripts/`
-- `assets/`
-- `.mcp.json`
-- `.app.json`
-
-Do not add MCP or app components to a skills-only plugin merely because the scaffold supports them.
-
-## Marketplace rules
-
-- Repository/team marketplaces use `<repo-root>/.agents/plugins/marketplace.json`.
-- Marketplace root metadata supports top-level `name` and optional `interface.displayName`.
-- Preserve existing entries and ordering unless the user requests a change.
-- Each generated marketplace entry includes `policy.installation`, `policy.authentication`, and `category`.
-- Default `policy.installation` to `AVAILABLE`.
-- Default `policy.authentication` to `ON_INSTALL`.
-- Allowed installation values: `NOT_AVAILABLE`, `AVAILABLE`, `INSTALLED_BY_DEFAULT`.
-- Allowed authentication values: `ON_INSTALL`, `ON_USE`.
-- Add `policy.products` only when explicitly required.
-- Keep same-repository plugin sources relative: `./plugins/<plugin-name>`.
-- Use `--force` only when intentionally replacing an existing entry or file.
-
-## Manifest rules
-
-- The plugin folder name and `plugin.json` `name` must use the same normalized plugin name.
-- Keep `.codex-plugin/plugin.json` present.
-- Include only component fields that the finished plugin actually provides. Do not leave placeholder MCP/app/hook paths in a skills-only plugin.
-- Resolve all relative paths from the plugin root and verify each referenced file or directory exists.
-- Human-facing metadata should accurately describe the plugin's actual behavior and supported surfaces.
-
-For the manifest schema reference bundled with this skill, use `references/plugin-json-spec.md`.
+For broader or personal-account availability, prepare a skills-only submission through the OpenAI plugin submission portal. Submission begins review; it does not publish immediately.
 
 ## Validation gate
 
-Before declaring completion:
+Before completion:
 
-1. Parse `.agents/plugins/marketplace.json` as JSON.
-2. Parse every referenced `.codex-plugin/plugin.json` as JSON.
-3. Verify each marketplace `source.path` resolves to an existing plugin directory.
-4. Verify every component path declared by `plugin.json` exists.
-5. For every skill, verify `SKILL.md` exists and required supporting files are present.
-6. Confirm skills-only plugins do not accidentally declare MCP or app components.
-7. If GitHub publication was requested, validate the repository state after push rather than only the local working tree.
-8. Do not claim ChatGPT installation unless ChatGPT itself confirms the import/install.
-
-If validation fails, correct the failure and repeat the validation gate.
-
-## Local Codex-only mode
-
-Use `~/plugins/<plugin-name>` and `~/.agents/plugins/marketplace.json` only when the user explicitly requests a personal/local Codex plugin. Do not silently substitute this mode for a GitHub/ChatGPT marketplace request.
+1. Parse the repository marketplace and every plugin manifest as JSON.
+2. Verify marketplace names and source paths match real plugin directories.
+3. Verify root `plugin.json` uses the Agent Plugins schema.
+4. Verify each `skills/<name>/SKILL.md` has valid `name` and `description` frontmatter.
+5. Verify all declared assets exist inside the plugin.
+6. Confirm the core skill workflow works without local scripts or hooks.
+7. Confirm no placeholder values or credentials are committed.
+8. Re-read the committed GitHub state after publishing.

@@ -1,4 +1,9 @@
 interface:
   display_name: "Plugin Creator"
-  short_description: "Build GitHub-hosted plugin marketplaces"
-  default_prompt: "Use $plugin-creator to package a skill as a repository-managed plugin, register it in .agents/plugins/marketplace.json, validate the repository, and prepare it for ChatGPT marketplace import."
+  short_description: "Build mobile-ready ChatGPT skill plugins"
+  default_prompt: "Use $plugin-creator to create or update a portable skills-only plugin in my GitHub repository for ChatGPT mobile."
+policy:
+  products:
+    - CHAT
+    - CODEX
+  allow_implicit_invocation: true

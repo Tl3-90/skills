@@ -40,28 +40,54 @@ def validate_plugin_name(plugin_name: str) -> None:
         )
 
 
-def build_plugin_json(plugin_name: str) -> dict:
+def build_portable_plugin_json(plugin_name: str) -> dict:
+    display_name = plugin_name.replace("-", " ").title()
     return {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         "name": plugin_name,
-        "version": "[TODO: 1.0.0]",
-        "description": "[TODO: Brief plugin description]",
-        "author": {
-            "name": "[TODO: Author Name]",
-            "url": "[TODO: https://github.com/author]",
-        },
-        "repository": "[TODO: https://github.com/author/repository]",
-        "skills": "./skills/",
-        "interface": {
-            "displayName": "[TODO: Plugin Display Name]",
-            "shortDescription": "[TODO: Short description for subtitle]",
-            "longDescription": "[TODO: Long description for details page]",
-            "developerName": "[TODO: Developer Name]",
-            "category": "[TODO: Productivity]",
-            "capabilities": ["[TODO: Skill capability]"],
-            "defaultPrompt": "[TODO: Describe the default way to use this plugin.]",
+        "version": "1.0.0",
+        "description": f"Reusable workflows provided by the {display_name} plugin.",
+        "author": {"name": "Plugin Author"},
+        "extensions": {
+            "com.openai": {
+                "interface": {
+                    "displayName": display_name,
+                    "shortDescription": f"Use {display_name} workflows",
+                    "longDescription": f"Reusable workflows packaged by {display_name}.",
+                    "developerName": "Plugin Author",
+                    "category": "Productivity",
+                    "capabilities": ["Reusable skill workflow"],
+                    "defaultPrompt": [
+                        f"Use {display_name} for its primary workflow."
+                    ],
+                }
+            }
         },
     }
 
+
+def build_compatibility_plugin_json(plugin_name: str, with_skills: bool) -> dict:
+    display_name = plugin_name.replace("-", " ").title()
+    payload = {
+        "name": plugin_name,
+        "version": "1.0.0",
+        "description": f"Reusable workflows provided by the {display_name} plugin.",
+        "author": {"name": "Plugin Author"},
+        "interface": {
+            "displayName": display_name,
+            "shortDescription": f"Use {display_name} workflows",
+            "longDescription": f"Reusable workflows packaged by {display_name}.",
+            "developerName": "Plugin Author",
+            "category": "Productivity",
+            "capabilities": ["Reusable skill workflow"],
+            "defaultPrompt": [
+                f"Use {display_name} for its primary workflow."
+            ],
+        },
+    }
+    if with_skills:
+        payload["skills"] = "./skills/"
+    return payload
 
 def build_marketplace_entry(
     plugin_name: str,
@@ -219,8 +245,14 @@ def main() -> None:
     plugin_root = (Path(args.path).expanduser().resolve() / plugin_name)
     plugin_root.mkdir(parents=True, exist_ok=True)
 
-    plugin_json_path = plugin_root / ".codex-plugin" / "plugin.json"
-    write_json(plugin_json_path, build_plugin_json(plugin_name), args.force)
+    portable_manifest_path = plugin_root / "plugin.json"
+    compatibility_manifest_path = plugin_root / ".codex-plugin" / "plugin.json"
+    write_json(portable_manifest_path, build_portable_plugin_json(plugin_name), args.force)
+    write_json(
+        compatibility_manifest_path,
+        build_compatibility_plugin_json(plugin_name, args.with_skills),
+        args.force,
+    )
 
     optional_directories = {
         "skills": args.with_skills,
@@ -252,7 +284,8 @@ def main() -> None:
         )
 
     print(f"Created repository plugin scaffold: {plugin_root}")
-    print(f"plugin manifest: {plugin_json_path}")
+    print(f"portable manifest: {portable_manifest_path}")
+    print(f"compatibility manifest: {compatibility_manifest_path}")
     if args.with_marketplace:
         print(f"marketplace manifest: {marketplace_path}")
 

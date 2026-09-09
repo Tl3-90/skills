@@ -1,28 +1,39 @@
 {
   "name": "plugin-creator",
-  "version": "1.0.0",
-  "description": "Create and maintain GitHub-hosted skills-only plugins and plugin marketplaces for ChatGPT and Codex.",
+  "version": "1.1.0",
+  "description": "Create and maintain GitHub-hosted skills-only plugins that work in ChatGPT and Codex, including ChatGPT mobile.",
   "author": {
     "name": "Tl3-90",
-    "url": "https://github.com/Tl3-90/skills"
+    "url": "https://github.com/Tl3-90"
   },
+  "homepage": "https://github.com/Tl3-90/skills/tree/main/plugins/plugin-creator",
   "repository": "https://github.com/Tl3-90/skills",
+  "keywords": [
+    "skills",
+    "plugins",
+    "chatgpt",
+    "codex",
+    "github",
+    "mobile"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Plugin Creator",
-    "shortDescription": "Build GitHub-hosted plugin marketplaces",
-    "longDescription": "Package skills into repository-managed plugins, register them in .agents/plugins/marketplace.json, validate the repository, and prepare it for ChatGPT or Codex marketplace import.",
+    "shortDescription": "Build mobile-ready ChatGPT skill plugins",
+    "longDescription": "Package reusable skills as portable GitHub-hosted plugins, validate marketplace metadata, and prepare them for ChatGPT web, desktop, and mobile distribution.",
     "developerName": "Tl3-90",
     "category": "Productivity",
-    "logo": "./assets/plugin-creator.svg",
-    "composerIcon": "./assets/plugin-creator.svg",
     "capabilities": [
-      "Package skills as plugins.",
-      "Create and update GitHub-hosted plugin marketplaces.",
-      "Validate plugin manifests and repository-relative paths."
+      "Create portable skills-only plugins.",
+      "Maintain GitHub marketplace metadata.",
+      "Prepare plugins for ChatGPT mobile distribution."
     ],
     "defaultPrompt": [
-      "Package this skill as a GitHub-hosted plugin for ChatGPT marketplace import."
-    ]
+      "Create a mobile-ready ChatGPT skill plugin in my GitHub repository.",
+      "Package this workflow as a skills-only plugin."
+    ],
+    "brandColor": "#10A37F",
+    "composerIcon": "./assets/plugin-creator.svg",
+    "logo": "./assets/plugin-creator.svg"
   }
 }
